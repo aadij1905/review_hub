@@ -1,0 +1,102 @@
+import { useState } from "react";
+import { confidencePct, confidenceClass, devStatusLabel, formatDate } from "../lib/ui";
+
+// PO / Admin-facing card: shows the problem, the plain-English suggestion,
+// impact and effort. Never renders code (that's the developer's view).
+export default function SuggestionCard({ item, onAccept, onReject, onReset, readOnly }) {
+  const [open, setOpen] = useState(false);
+  const pct = confidencePct(item.confidence);
+
+  return (
+    <div className="card">
+      <div className="card-top">
+        <h3 className="card-title">{item.title}</h3>
+        <div className="badges">
+          {item.confidence && (
+            <span className={`badge ${confidenceClass(item.confidence)}`}>
+              {String(item.confidence)} confidence
+            </span>
+          )}
+          {item.category && <span className="badge badge-cat">{item.category}</span>}
+          {item.effort && <span className="badge badge-effort">{item.effort} effort</span>}
+        </div>
+      </div>
+
+      <p className="card-problem">{item.problem}</p>
+
+      <div className="card-meta">
+        {item.affectedPage && (
+          <span className="card-file">📁 {item.affectedPage}</span>
+        )}
+        <span className="dot-sep">·</span>
+        <span className="conf-inline">
+          Confidence:
+          <span className="conf-bar">
+            <span className="conf-fill" style={{ width: `${pct}%` }} />
+          </span>
+          <span className="conf-pct">{pct}%</span>
+        </span>
+      </div>
+
+      <div className="disclosure">
+        <button
+          className={`disclosure-btn ${open ? "open" : ""}`}
+          onClick={() => setOpen((o) => !o)}
+        >
+          <span className="chev">›</span> Why this helps
+        </button>
+        {open && (
+          <div className="disclosure-panel">
+            <div className="kv">
+              <span className="k">Recommended action</span>
+              {item.suggestion}
+            </div>
+            {item.impactEstimate && (
+              <div className="kv">
+                <span className="k">Expected impact</span>
+                {item.impactEstimate}
+              </div>
+            )}
+            {item.effort && (
+              <div className="kv">
+                <span className="k">Effort</span>
+                {item.effort}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {!readOnly && item.status === "pending" && (
+        <div className="card-actions">
+          <button className="btn-approve" onClick={() => onAccept(item)}>✓ Approve</button>
+          <button className="btn-reject" onClick={() => onReject(item)}>✕ Reject</button>
+        </div>
+      )}
+
+      {!readOnly && item.status !== "pending" && (
+        <div className="status-row">
+          <span className={`status-pill status-${item.status}`}>
+            {item.status === "accepted" ? "✓ Approved" : "✕ Rejected"}
+          </span>
+          <span className="status-actions">
+            <button className="link-btn" onClick={() => onReset(item)}>Move back to pending</button>
+          </span>
+        </div>
+      )}
+
+      {item.status === "accepted" && (
+        <div className={`dev-progress dev-${item.devStatus || "todo"}`}>
+          <span className="dev-progress-head">
+            <span className={`dev-dot dev-dot-${item.devStatus || "todo"}`} />
+            Developer: <strong>{devStatusLabel(item.devStatus)}</strong>
+            {item.devUpdatedAt && (
+              <span className="dev-updated">· updated {formatDate(item.devUpdatedAt)}</span>
+            )}
+          </span>
+          {item.devRemark && <div className="dev-remark">“{item.devRemark}”</div>}
+        </div>
+      )}
+    </div>
+  );
+}

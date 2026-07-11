@@ -3,9 +3,8 @@ import { setDevProgress, updateItem } from "../lib/store";
 import { generateFullCode } from "../lib/api";
 
 // Developer dashboard: only the suggestions the PO has approved, each with its
-// technical detail, code patch, and an implementation tracker. Also used by
-// admins as a read-only preview.
-export default function DevView({ storeId, reviewState, reload, preview }) {
+// technical detail, code patch, and an implementation tracker.
+export default function DevView({ storeId, reviewState, reload }) {
   const accepted = (reviewState?.items || []).filter((i) => i.status === "accepted");
 
   const done = accepted.filter((i) => i.devStatus === "done").length;
@@ -28,7 +27,7 @@ export default function DevView({ storeId, reviewState, reload, preview }) {
     <div className="main">
       <div className="page-head">
         <div>
-          <h1 className="page-title">{preview ? "Dev View Preview" : "Developer Dashboard"}</h1>
+          <h1 className="page-title">Developer Dashboard</h1>
           <p className="page-sub">
             Approved suggestions ready to implement, with code patches
             {storeId && <span className="source-tag">· store: {storeId}</span>}
@@ -38,12 +37,6 @@ export default function DevView({ storeId, reviewState, reload, preview }) {
           </p>
         </div>
       </div>
-
-      {preview && (
-        <div className="preview-banner">
-          👁 Preview — this is exactly what developers see for the approved suggestions.
-        </div>
-      )}
 
       {accepted.length === 0 ? (
         <div className="empty">
@@ -60,7 +53,6 @@ export default function DevView({ storeId, reviewState, reload, preview }) {
             item={item}
             onProgress={handleProgress}
             onGenerateCode={handleGenerateCode}
-            readOnly={preview}
           />
         ))
       )}

@@ -55,14 +55,6 @@ export default function Sidebar({
           <span className="nav-icon">🕘</span> History
         </button>
 
-        {isAdmin && (
-          <button
-            className={`nav-link ${view === "devpreview" ? "active" : ""}`}
-            onClick={() => setView("devpreview")}
-          >
-            <span className="nav-icon">◐</span> Dev View Preview
-          </button>
-        )}
       </nav>
 
       <div className="sidebar-foot">

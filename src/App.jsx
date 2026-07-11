@@ -91,9 +91,6 @@ export default function App() {
     if (view === "history") {
       return <History storeId={storeId} reviewState={reviewState} />;
     }
-    if (isAdmin && view === "devpreview") {
-      return <DevView storeId={storeId} reviewState={reviewState} reload={reload} preview />;
-    }
     if (isAdmin) {
       return (
         <AdminDashboard

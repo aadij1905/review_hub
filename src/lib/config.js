@@ -3,9 +3,15 @@
 // the Analytics Service and AI Service. Adjust these if your services run on
 // different hosts/ports (defaults match the repo's .env files).
 // ─────────────────────────────────────────────────────────────────────────────
-export const AI_URL = "https://ai-service-production-b7c5.up.railway.app"; // ai service 2
-export const ANALYTICS_URL = "https://analytics-service-production-6d80.up.railway.app"; // analytic service
-export const SHOPIFY_APP_URL = "https://shopify-extractor-production.up.railway.app"; // deployed extractor (install + sync)
+export const AI_URL =
+  "http://localhost:5001";
+// "https://ai-service-production-b7c5.up.railway.app"; // ai service 2
+export const ANALYTICS_URL =
+  "http://localhost:4000";
+// "https://analytics-service-production-6d80.up.railway.app"; // analytic service
+export const SHOPIFY_APP_URL =
+  "http://localhost:3000";
+// "https://shopify-extractor-production.up.railway.app"; // deployed extractor (install + sync)
 
 // Default store used for the demo. A PO can change this on the onboarding card.
 export const DEFAULT_STORE_ID = "my-store-mkct5tzv.myshopify.com";

@@ -4,8 +4,8 @@ import { DEV_STATUSES, devStatusLabel, formatDate } from "../lib/ui";
 
 // Developer-facing card: technical issue, recommendation, and the code patch.
 // Only rendered for suggestions the PO has accepted. Developers can mark
-// implementation progress and leave a remark; in admin preview it's read-only.
-export default function DevCard({ item, onProgress, onGenerateCode, readOnly }) {
+// implementation progress and leave a remark.
+export default function DevCard({ item, onProgress, onGenerateCode }) {
   const patch = item.codePatch || {};
   const hasCode = patch.code && patch.type !== "manual";
   const push = useToast();
@@ -52,7 +52,7 @@ export default function DevCard({ item, onProgress, onGenerateCode, readOnly }) 
     }
   }
 
-  const genButton = !readOnly && (
+  const genButton = (
     <button className="gen-code-btn" onClick={generateCode} disabled={generating}>
       {generating ? (
         <>
@@ -145,42 +145,34 @@ export default function DevCard({ item, onProgress, onGenerateCode, readOnly }) 
       <div className="dev-track">
         <div className="dev-track-row">
           <span className="dev-track-label">Implementation</span>
-          {readOnly ? (
-            <span className={`dev-pill dev-pill-${devStatus}`}>{devStatusLabel(devStatus)}</span>
-          ) : (
-            <div className="seg">
-              {DEV_STATUSES.map((s) => (
-                <button
-                  key={s.key}
-                  className={`seg-btn ${devStatus === s.key ? `seg-active seg-${s.key}` : ""}`}
-                  onClick={() => setStatus(s.key)}
-                >
-                  {s.label}
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="seg">
+            {DEV_STATUSES.map((s) => (
+              <button
+                key={s.key}
+                className={`seg-btn ${devStatus === s.key ? `seg-active seg-${s.key}` : ""}`}
+                onClick={() => setStatus(s.key)}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
           {item.devUpdatedAt && (
             <span className="dev-updated">updated {formatDate(item.devUpdatedAt)}</span>
           )}
         </div>
 
-        {readOnly ? (
-          item.devRemark ? <div className="dev-remark">“{item.devRemark}”</div> : null
-        ) : (
-          <div className="remark-row">
-            <textarea
-              className="remark-input"
-              placeholder="Add a remark for the PO (blockers, notes, links)…"
-              value={remark}
-              onChange={(e) => setRemark(e.target.value)}
-              rows={2}
-            />
-            <button className="btn-secondary" onClick={saveRemark} disabled={!remarkDirty}>
-              Save remark
-            </button>
-          </div>
-        )}
+        <div className="remark-row">
+          <textarea
+            className="remark-input"
+            placeholder="Add a remark for the PO (blockers, notes, links)…"
+            value={remark}
+            onChange={(e) => setRemark(e.target.value)}
+            rows={2}
+          />
+          <button className="btn-secondary" onClick={saveRemark} disabled={!remarkDirty}>
+            Save remark
+          </button>
+        </div>
       </div>
     </div>
   );

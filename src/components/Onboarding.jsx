@@ -64,19 +64,22 @@ export default function Onboarding({
           <div className="step-body">
             <div className="step-title">
               Storefront URL{" "}
-              <span style={{ fontWeight: 400, color: "#9aa3b8" }}>· optional</span>
+              <span style={{ fontWeight: 400, color: "#9aa3b8" }}>
+                · auto-detected from Shopify
+              </span>
             </div>
             <div className="step-desc">
-              If provided, the crawler visits your top pages for CTA placement,
-              social proof, and screenshots. Leave blank to skip crawling and use
-              analytics only.
+              We fetch your storefront URL from Shopify automatically, so the
+              crawler always runs — capturing CTA placement, social proof, and
+              screenshots on your top pages. Override below only if you want to
+              crawl a different URL (e.g., a staging domain).
             </div>
             <div className="store-input">
               <input
                 type="text"
                 value={websiteUrl}
                 onChange={(e) => setWebsiteUrl(e.target.value.trim())}
-                placeholder="https://my-store.com"
+                placeholder="Leave blank to use your Shopify storefront"
               />
             </div>
           </div>
@@ -87,7 +90,7 @@ export default function Onboarding({
           <div className="step-body">
             <div className="step-title">Sync to dashboard</div>
             <div className="step-desc">
-              Extract → normalize → {websiteUrl ? "crawl + screenshots → " : ""}AI.
+              Extract → normalize → crawl + screenshots → AI.
               Generates your first set of suggestions.
             </div>
             <div className="store-input">

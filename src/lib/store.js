@@ -59,6 +59,18 @@ export function setStoreWebsite(storeId, url) {
   else localStorage.removeItem(`reviewhub:website:${storeId}`);
 }
 
+// Optional storefront password per store — only needed for stores not yet
+// public (Settings > Online Store > Preferences). Passed through to the
+// Analytics Service's crawler so it can get past the /password wall.
+export function getStorePassword(storeId) {
+  return localStorage.getItem(`reviewhub:password:${storeId}`) || "";
+}
+
+export function setStorePassword(storeId, password) {
+  if (password) localStorage.setItem(`reviewhub:password:${storeId}`, password);
+  else localStorage.removeItem(`reviewhub:password:${storeId}`);
+}
+
 export function getActiveStore() {
   return localStorage.getItem(ACTIVE_KEY) || null;
 }

@@ -10,6 +10,8 @@ import {
   clearStore,
   getStoreWebsite,
   setStoreWebsite,
+  getStorePassword,
+  setStorePassword,
 } from "../lib/store";
 
 const FILTERS = [
@@ -25,9 +27,13 @@ export default function AdminDashboard({ storeId, setStoreId, reviewState, reloa
   const [filter, setFilter] = useState("all");
   const [mode, setMode] = useState("comprehensive");
   const [websiteUrl, setWebsiteUrl] = useState(() => getStoreWebsite(storeId));
+  const [storePassword, setStorePasswordState] = useState(() => getStorePassword(storeId));
 
-  // Reload the saved storefront URL when the active store changes.
-  useEffect(() => setWebsiteUrl(getStoreWebsite(storeId)), [storeId]);
+  // Reload the saved storefront URL/password when the active store changes.
+  useEffect(() => {
+    setWebsiteUrl(getStoreWebsite(storeId));
+    setStorePasswordState(getStorePassword(storeId));
+  }, [storeId]);
 
   const items = reviewState?.items || [];
   const counts = useMemo(() => {
@@ -49,10 +55,11 @@ export default function AdminDashboard({ storeId, setStoreId, reviewState, reloa
     setBusy(true);
     setActiveStore(storeId);
     setStoreWebsite(storeId, websiteUrl);
+    setStorePassword(storeId, storePassword);
     try {
       if (withSync) {
         try {
-          await syncStore(storeId, websiteUrl);
+          await syncStore(storeId, websiteUrl, storePassword);
           push("Store synced — data extracted", "success");
         } catch {
           // shopify-pp may be offline / CORS-blocked; proceed with whatever
@@ -158,6 +165,8 @@ export default function AdminDashboard({ storeId, setStoreId, reviewState, reloa
           setStoreId={setStoreId}
           websiteUrl={websiteUrl}
           setWebsiteUrl={setWebsiteUrl}
+          storePassword={storePassword}
+          setStorePassword={setStorePasswordState}
           onSync={() => runGenerate({ withSync: true })}
           syncing={busy}
         />

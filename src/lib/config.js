@@ -10,8 +10,8 @@ export const ANALYTICS_URL =
   "http://localhost:4000";
 // "https://analytics-service-production-6d80.up.railway.app"; // analytic service
 export const SHOPIFY_APP_URL =
-  "http://localhost:3000";
-// "https://shopify-extractor-production.up.railway.app"; // deployed extractor (install + sync)
+  "https://shopify-extractor-production.up.railway.app"; // deployed extractor (install + sync)
+// "http://localhost:3000";
 
 // Default store used for the demo. A PO can change this on the onboarding card.
 export const DEFAULT_STORE_ID = "my-store-mkct5tzv.myshopify.com";

@@ -17,11 +17,15 @@ export function installUrl(storeId) {
 // Best-effort: ask the shopify-pp service to extract + ingest fresh data.
 // This may fail (service not running, or CORS — shopify-pp has no CORS
 // middleware); callers should treat failure as non-fatal and proceed.
-export async function syncStore(storeId, websiteUrl) {
+// storePassword (if the store isn't public yet) travels in the body, not
+// the query string, so it doesn't end up in access/proxy logs.
+export async function syncStore(storeId, websiteUrl, storePassword) {
   const qs = new URLSearchParams({ shop: storeId });
   if (websiteUrl && websiteUrl.trim()) qs.set("websiteUrl", websiteUrl.trim());
   const res = await fetch(`${SHOPIFY_APP_URL}/api/sync?${qs.toString()}`, {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ storePassword: storePassword && storePassword.trim() ? storePassword.trim() : null }),
   });
   if (!res.ok) throw new Error(`Sync failed (HTTP ${res.status})`);
   return res.json();
@@ -69,11 +73,11 @@ export async function generateSuggestions(storeId, { mock = false, mode = "compr
 
 // Ask the AI service for a full, focused code patch for a single suggestion.
 // Returns the new codePatch object. Throws if the service is unreachable.
-export async function generateFullCode(item) {
+export async function generateFullCode(item, storeId) {
   const res = await fetch(`${AI_URL}/code/generate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ item }),
+    body: JSON.stringify({ item, storeId }),
   });
   if (!res.ok) {
     let detail = `HTTP ${res.status}`;

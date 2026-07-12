@@ -7,6 +7,8 @@ export default function Onboarding({
   setStoreId,
   websiteUrl,
   setWebsiteUrl,
+  storePassword,
+  setStorePassword,
   onSync,
   syncing,
 }) {
@@ -87,6 +89,30 @@ export default function Onboarding({
 
         <div className="step">
           <div className="step-num">4</div>
+          <div className="step-body">
+            <div className="step-title">
+              Storefront password{" "}
+              <span style={{ fontWeight: 400, color: "#9aa3b8" }}>· optional</span>
+            </div>
+            <div className="step-desc">
+              Only needed if your store isn't public yet (Settings → Online
+              Store → Preferences → Restrict access). Lets the crawler get
+              past the password page to capture real screenshots.
+            </div>
+            <div className="store-input">
+              <input
+                type="password"
+                value={storePassword}
+                onChange={(e) => setStorePassword(e.target.value)}
+                placeholder="Leave blank if your store is public"
+                autoComplete="off"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="step">
+          <div className="step-num">5</div>
           <div className="step-body">
             <div className="step-title">Sync to dashboard</div>
             <div className="step-desc">

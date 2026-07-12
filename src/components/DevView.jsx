@@ -17,7 +17,7 @@ export default function DevView({ storeId, reviewState, reload }) {
   // Fetch a full code patch for one suggestion and persist it. Returns the
   // patch (or throws) so the card can show loading/error state.
   async function handleGenerateCode(item) {
-    const patch = await generateFullCode(item);
+    const patch = await generateFullCode(item, storeId);
     updateItem(storeId, item.id, { codePatch: patch, codeExpanded: true });
     reload && reload();
     return patch;

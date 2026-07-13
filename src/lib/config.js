@@ -1,0 +1,27 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Service endpoints. The Review Hub is a React-only app that talks directly to
+// the Analytics Service and AI Service. Adjust these if your services run on
+// different hosts/ports (defaults match the repo's .env files).
+// ─────────────────────────────────────────────────────────────────────────────
+export const AI_URL =
+  "http://localhost:5001";
+// "https://ai-service-production-b7c5.up.railway.app"; // ai service 2
+export const ANALYTICS_URL =
+  "http://localhost:4000";
+// "https://analytics-service-production-6d80.up.railway.app"; // analytic service
+export const SHOPIFY_APP_URL =
+  "http://localhost:3000";
+// "https://shopify-extractor-production.up.railway.app"; // deployed extractor (install + sync)
+
+// Default store used for the demo. A PO can change this on the onboarding card.
+export const DEFAULT_STORE_ID = "my-store-mkct5tzv.myshopify.com";
+
+// Hardcoded users (no real auth — matches the spec).
+export const USERS = [
+  { username: "admin", password: "admin123", role: "admin", name: "Alex Morgan" },
+  { username: "dev1", password: "dev123", role: "developer", name: "Dana Lee" },
+  { username: "dev2", password: "dev123", role: "developer", name: "Sam Rivera" },
+];
+
+// Map the AI service's string confidence to a percentage for the progress bar.
+export const CONFIDENCE_PCT = { high: 92, medium: 68, low: 45 };

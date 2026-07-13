@@ -72,7 +72,11 @@ export async function generateSuggestions(storeId, { mock = false, mode = "compr
 }
 
 // Ask the AI service for a full, focused code patch for a single suggestion.
-// Returns the new codePatch object. Throws if the service is unreachable.
+// Returns { codePatch, screenshot, visualChangeNote } — screenshot is the
+// crawler's live "before" shot of the affected page (null if it wasn't
+// crawled), and visualChangeNote describes what the patch will visibly
+// change in that screenshot (null for manual changes or when unavailable).
+// Throws if the service is unreachable.
 export async function generateFullCode(item, storeId) {
   const res = await fetch(`${AI_URL}/code/generate`, {
     method: "POST",
@@ -89,7 +93,58 @@ export async function generateFullCode(item, storeId) {
     throw new Error(detail);
   }
   const data = await res.json();
-  return data.codePatch;
+  return {
+    codePatch: data.codePatch,
+    screenshot: data.screenshot || null,
+    visualChangeNote: data.visualChangeNote || null,
+  };
+}
+
+// Pull the full analytics picture for a store: overview, traffic, devices,
+// pages, and funnel, fetched in parallel. Skips the Analytics Service's
+// /report endpoint since it just re-bundles the same normalized data these
+// five section endpoints already expose.
+export async function fetchAnalytics(storeId) {
+  const qs = `storeId=${encodeURIComponent(storeId)}`;
+  const get = async (path) => {
+    const res = await fetch(`${ANALYTICS_URL}${path}?${qs}`);
+    if (!res.ok) throw new Error(`${path} failed (HTTP ${res.status})`);
+    return res.json();
+  };
+  const [overview, traffic, devices, pages, funnel] = await Promise.all([
+    get("/api/analytics/overview"),
+    get("/api/analytics/traffic"),
+    get("/api/analytics/devices"),
+    get("/api/analytics/pages"),
+    get("/api/analytics/funnel"),
+  ]);
+
+  // Each section endpoint returns its own flags subset; some flag types
+  // (e.g. high_cart_abandonment) are echoed by more than one section, so
+  // de-dupe by type+path/source when merging into a single issues list.
+  const seen = new Set();
+  const flags = [];
+  for (const f of [...overview.flags, ...traffic.flags, ...devices.flags, ...pages.flags, ...funnel.flags]) {
+    const key = `${f.type}:${f.path || f.source || ""}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    flags.push(f);
+  }
+
+  return {
+    storeId,
+    dataSource: overview.dataSource,
+    ingestedAt: overview.ingestedAt,
+    period: overview.period,
+    overview: overview.overview,
+    dailyOverview: overview.dailyOverview,
+    dailySales: overview.dailySales,
+    traffic: traffic.traffic,
+    devices: devices.devices,
+    pages: pages.pages,
+    funnel: funnel.funnel,
+    flags,
+  };
 }
 
 // Best-effort mirror of an accept/reject back to the AI service. The Review

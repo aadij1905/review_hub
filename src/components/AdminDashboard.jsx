@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import SuggestionCard from "./SuggestionCard";
 import Onboarding from "./Onboarding";
+import Analytics from "./Analytics";
 import { useToast } from "./Toast";
-import { generateSuggestions, syncStore, recordResponse } from "../lib/api";
+import { generateSuggestions, syncStore, recordResponse, fetchStatus } from "../lib/api";
 import {
   upsertSuggestions,
   setStatus,
@@ -24,15 +25,33 @@ const FILTERS = [
 export default function AdminDashboard({ storeId, setStoreId, reviewState, reload }) {
   const push = useToast();
   const [busy, setBusy] = useState(false);
+  const [section, setSection] = useState("analytics");
   const [filter, setFilter] = useState("all");
   const [mode, setMode] = useState("comprehensive");
   const [websiteUrl, setWebsiteUrl] = useState(() => getStoreWebsite(storeId));
   const [storePassword, setStorePasswordState] = useState(() => getStorePassword(storeId));
+  const [showStoreSettings, setShowStoreSettings] = useState(false);
+  // null = still checking; true/false once we know whether this store has
+  // ever been synced with real data. Gates Onboarding vs. the normal tabs.
+  const [hasRealData, setHasRealData] = useState(null);
 
   // Reload the saved storefront URL/password when the active store changes.
   useEffect(() => {
     setWebsiteUrl(getStoreWebsite(storeId));
     setStorePasswordState(getStorePassword(storeId));
+  }, [storeId]);
+
+  useEffect(() => {
+    if (!storeId) {
+      setHasRealData(false);
+      return;
+    }
+    let cancelled = false;
+    setHasRealData(null);
+    fetchStatus(storeId)
+      .then((s) => { if (!cancelled) setHasRealData(s.dataSource === "shopify"); })
+      .catch(() => { if (!cancelled) setHasRealData(false); });
+    return () => { cancelled = true; };
   }, [storeId]);
 
   const items = reviewState?.items || [];
@@ -60,6 +79,7 @@ export default function AdminDashboard({ storeId, setStoreId, reviewState, reloa
       if (withSync) {
         try {
           await syncStore(storeId, websiteUrl, storePassword);
+          setHasRealData(true);
           push("Store synced — data extracted", "success");
         } catch {
           // shopify-pp may be offline / CORS-blocked; proceed with whatever
@@ -88,6 +108,11 @@ export default function AdminDashboard({ storeId, setStoreId, reviewState, reloa
     }
   }
 
+  function saveStoreSettings() {
+    setStoreWebsite(storeId, websiteUrl);
+    setStorePassword(storeId, storePassword);
+  }
+
   function resetReview() {
     if (!confirm("Clear all suggestions and their approve/reject status for this store?")) return;
     clearStore(storeId);
@@ -105,13 +130,44 @@ export default function AdminDashboard({ storeId, setStoreId, reviewState, reloa
 
   const hasSuggestions = items.length > 0;
 
+  if (hasRealData === null) {
+    return (
+      <div className="main">
+        <div className="empty">Checking store status…</div>
+      </div>
+    );
+  }
+
+  if (!hasRealData) {
+    return (
+      <div className="main">
+        <div className="page-head">
+          <div>
+            <h1 className="page-title">Admin Dashboard</h1>
+            <p className="page-sub">Connect your store to get started</p>
+          </div>
+        </div>
+        <Onboarding
+          storeId={storeId}
+          setStoreId={setStoreId}
+          websiteUrl={websiteUrl}
+          setWebsiteUrl={setWebsiteUrl}
+          storePassword={storePassword}
+          setStorePassword={setStorePasswordState}
+          onSync={() => runGenerate({ withSync: true })}
+          syncing={busy}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="main">
       <div className="page-head">
         <div>
           <h1 className="page-title">Admin Dashboard</h1>
           <p className="page-sub">
-            Review and manage AI-generated suggestions
+            {section === "analytics" ? "Store performance and detected issues" : "Review and manage AI-generated suggestions"}
             {reviewState?.source && (
               <span className="source-tag">
                 · store: {storeId} · source: {reviewState.source}
@@ -120,27 +176,35 @@ export default function AdminDashboard({ storeId, setStoreId, reviewState, reloa
           </p>
         </div>
         <div className="head-actions">
-          <div className="mode-toggle" title="Quick: 3 top fixes · Comprehensive: 20–25 detailed suggestions">
-            <button
-              className={`mode-btn ${mode === "quick" ? "mode-active" : ""}`}
-              onClick={() => setMode("quick")}
-              disabled={busy}
-            >
-              Quick
-            </button>
-            <button
-              className={`mode-btn ${mode === "comprehensive" ? "mode-active" : ""}`}
-              onClick={() => setMode("comprehensive")}
-              disabled={busy}
-            >
-              Comprehensive
-            </button>
-          </div>
-          {hasSuggestions && (
+          <button
+            className="btn-secondary"
+            onClick={() => setShowStoreSettings((v) => !v)}
+          >
+            ⚙ Store settings
+          </button>
+          {section === "suggestions" && (
             <>
-              <button className="btn-clear" onClick={resetReview} disabled={busy}>
-                Clear review state
-              </button>
+              <div className="mode-toggle" title="Quick: 3 top fixes · Comprehensive: 20–25 detailed suggestions">
+                <button
+                  className={`mode-btn ${mode === "quick" ? "mode-active" : ""}`}
+                  onClick={() => setMode("quick")}
+                  disabled={busy}
+                >
+                  Quick
+                </button>
+                <button
+                  className={`mode-btn ${mode === "comprehensive" ? "mode-active" : ""}`}
+                  onClick={() => setMode("comprehensive")}
+                  disabled={busy}
+                >
+                  Comprehensive
+                </button>
+              </div>
+              {hasSuggestions && (
+                <button className="btn-clear" onClick={resetReview} disabled={busy}>
+                  Clear review state
+                </button>
+              )}
               <button
                 className="btn-generate"
                 onClick={() => runGenerate({ withSync: true })}
@@ -159,17 +223,85 @@ export default function AdminDashboard({ storeId, setStoreId, reviewState, reloa
         </div>
       </div>
 
-      {!hasSuggestions ? (
-        <Onboarding
-          storeId={storeId}
-          setStoreId={setStoreId}
-          websiteUrl={websiteUrl}
-          setWebsiteUrl={setWebsiteUrl}
-          storePassword={storePassword}
-          setStorePassword={setStorePasswordState}
-          onSync={() => runGenerate({ withSync: true })}
-          syncing={busy}
-        />
+      {showStoreSettings && (
+        <div className="chart-card" style={{ marginBottom: 16 }}>
+          <div className="chart-title">Store settings</div>
+          <p className="step-desc">
+            Storefront URL and password used by the crawler — editable any time, not just during onboarding.
+          </p>
+          <div className="store-input">
+            <input
+              type="text"
+              value={websiteUrl}
+              onChange={(e) => setWebsiteUrl(e.target.value.trim())}
+              placeholder="Leave blank to use your Shopify storefront"
+            />
+          </div>
+          <div className="store-input">
+            <input
+              type="password"
+              value={storePassword}
+              onChange={(e) => setStorePasswordState(e.target.value)}
+              placeholder="Leave blank if your store is public"
+              autoComplete="off"
+            />
+          </div>
+          <div className="store-input">
+            <button
+              className="btn-secondary"
+              onClick={() => {
+                saveStoreSettings();
+                push("Store settings saved", "success");
+              }}
+            >
+              Save
+            </button>
+            <button
+              className="btn-generate"
+              disabled={busy}
+              onClick={() => {
+                saveStoreSettings();
+                setShowStoreSettings(false);
+                runGenerate({ withSync: true });
+              }}
+            >
+              Save &amp; Sync Now
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="tabs section-tabs">
+        <button
+          className={`tab ${section === "analytics" ? "active" : ""}`}
+          onClick={() => setSection("analytics")}
+        >
+          Analytics
+        </button>
+        <button
+          className={`tab ${section === "suggestions" ? "active" : ""}`}
+          onClick={() => setSection("suggestions")}
+        >
+          Suggestions
+        </button>
+      </div>
+
+      {section === "analytics" ? (
+        <Analytics storeId={storeId} />
+      ) : !hasSuggestions ? (
+        <div className="empty">
+          <h2>No suggestions yet</h2>
+          <p>Generate AI-powered suggestions from this store's synced analytics data.</p>
+          <button className="btn-generate" onClick={() => runGenerate({ withSync: true })} disabled={busy}>
+            {busy ? (
+              <>
+                <span className="spinner" /> Generating…
+              </>
+            ) : (
+              <>🤖 Generate Suggestions</>
+            )}
+          </button>
+        </div>
       ) : (
         <>
           <div className="stats">

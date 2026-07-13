@@ -129,6 +129,38 @@ export default function DevCard({ item, onProgress, onGenerateCode }) {
               <strong>Notes:</strong> {patch.notes}
             </div>
           )}
+          {(item.codeScreenshot?.url || item.codeScreenshot?.mobileUrl) && (
+            <div className="code-screenshot" style={{ marginTop: 12 }}>
+              <div className="k" style={{ marginBottom: 6 }}>
+                Live "before" — {item.affectedPage}
+              </div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {item.codeScreenshot.url && (
+                  <a href={item.codeScreenshot.url} target="_blank" rel="noreferrer">
+                    <img
+                      src={item.codeScreenshot.url}
+                      alt={`${item.affectedPage} desktop screenshot`}
+                      style={{ maxWidth: 220, borderRadius: 6, border: "1px solid var(--border, #333)" }}
+                    />
+                  </a>
+                )}
+                {item.codeScreenshot.mobileUrl && (
+                  <a href={item.codeScreenshot.mobileUrl} target="_blank" rel="noreferrer">
+                    <img
+                      src={item.codeScreenshot.mobileUrl}
+                      alt={`${item.affectedPage} mobile screenshot`}
+                      style={{ maxWidth: 110, borderRadius: 6, border: "1px solid var(--border, #333)" }}
+                    />
+                  </a>
+                )}
+              </div>
+              {item.codeVisualChangeNote && (
+                <div className="code-notes" style={{ marginTop: 6 }}>
+                  <strong>What changes:</strong> {item.codeVisualChangeNote}
+                </div>
+              )}
+            </div>
+          )}
         </>
       ) : (
         <>

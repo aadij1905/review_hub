@@ -14,13 +14,20 @@ export default function DevView({ storeId, reviewState, reload }) {
     reload && reload();
   }
 
-  // Fetch a full code patch for one suggestion and persist it. Returns the
-  // patch (or throws) so the card can show loading/error state.
+  // Fetch a full code patch for one suggestion and persist it, along with
+  // the crawler's live screenshot of the page and a note on what visibly
+  // changes. Returns the patch (or throws) so the card can show loading/error
+  // state.
   async function handleGenerateCode(item) {
-    const patch = await generateFullCode(item, storeId);
-    updateItem(storeId, item.id, { codePatch: patch, codeExpanded: true });
+    const { codePatch, screenshot, visualChangeNote } = await generateFullCode(item, storeId);
+    updateItem(storeId, item.id, {
+      codePatch,
+      codeScreenshot: screenshot,
+      codeVisualChangeNote: visualChangeNote,
+      codeExpanded: true,
+    });
     reload && reload();
-    return patch;
+    return codePatch;
   }
 
   return (

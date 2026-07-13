@@ -4,10 +4,12 @@
 // different hosts/ports (defaults match the repo's .env files).
 // ─────────────────────────────────────────────────────────────────────────────
 export const AI_URL =
-  "http://localhost:5001";
+  "https://led-performances-suggestions-councils.trycloudflare.com"; // cloudflare tunnel -> local ai-service (rate-limited on Railway)
+// "http://localhost:5001";
 // "https://ai-service-production-b7c5.up.railway.app"; // ai service 2
 export const ANALYTICS_URL =
-  "http://localhost:4000";
+  "https://resolve-individual-partition-birmingham.trycloudflare.com"; // cloudflare tunnel -> local analytics-service
+// "http://localhost:4000";
 // "https://analytics-service-production-6d80.up.railway.app"; // analytic service
 export const SHOPIFY_APP_URL =
   "https://shopify-extractor-production.up.railway.app"; // deployed extractor (install + sync)

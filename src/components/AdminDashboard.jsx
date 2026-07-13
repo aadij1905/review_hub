@@ -3,7 +3,7 @@ import SuggestionCard from "./SuggestionCard";
 import Onboarding from "./Onboarding";
 import Analytics from "./Analytics";
 import { useToast } from "./Toast";
-import { generateSuggestions, syncStore, recordResponse, fetchStatus } from "../lib/api";
+import { generateSuggestions, syncStore, recordResponse, fetchStatus, generateFullCode } from "../lib/api";
 import {
   upsertSuggestions,
   setStatus,
@@ -13,6 +13,7 @@ import {
   setStoreWebsite,
   getStorePassword,
   setStorePassword,
+  updateItem,
 } from "../lib/store";
 
 const FILTERS = [
@@ -126,6 +127,34 @@ export default function AdminDashboard({ storeId, setStoreId, reviewState, reloa
       recordResponse(storeId, item.id, status === "accepted" ? "accept" : "reject", item.title);
     }
     reload();
+
+    // Kick off real code generation immediately on accept — real theme code,
+    // live screenshot, and a visual-change note are already there by the
+    // time a developer opens Dev View, instead of requiring a manual click.
+    // Not awaited: the accept action itself shouldn't block on this. Skipped
+    // if this item was already fully generated (e.g. re-accepting after a
+    // reject) to avoid wasteful regeneration.
+    if (status === "accepted" && !item.codeExpanded) {
+      updateItem(storeId, item.id, { codeGenerating: true });
+      reload();
+      generateFullCode(item, storeId)
+        .then(({ codePatch, screenshot, visualChangeNote }) => {
+          updateItem(storeId, item.id, {
+            codePatch,
+            codeScreenshot: screenshot,
+            codeVisualChangeNote: visualChangeNote,
+            codeExpanded: true,
+            codeGenerating: false,
+          });
+          reload();
+        })
+        .catch((err) => {
+          console.warn(`[auto-codegen] failed for "${item.title}":`, err.message);
+          updateItem(storeId, item.id, { codeGenerating: false });
+          push(`Code generation failed for "${item.title}" — retry from Dev View`, "error");
+          reload();
+        });
+    }
   }
 
   const hasSuggestions = items.length > 0;

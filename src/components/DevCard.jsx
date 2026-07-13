@@ -118,6 +118,17 @@ export default function DevCard({ item, onProgress, onGenerateCode }) {
               </button>
             </div>
           </div>
+          {item.affectedPage && (
+            <div className="kv" style={{ marginTop: 4 }}>
+              <span className="k">Affects page</span>
+              <code style={{ fontSize: 12 }}>{item.affectedPage}</code>
+            </div>
+          )}
+          {patch.pageImpact && (
+            <div className="manual-note" style={{ marginTop: 4 }}>
+              <strong>What this does:</strong> {patch.pageImpact}
+            </div>
+          )}
           <pre className="code">{patch.code}</pre>
           {patch.instructions && (
             <div className="manual-note" style={{ marginTop: 8 }}>
@@ -162,6 +173,10 @@ export default function DevCard({ item, onProgress, onGenerateCode }) {
             </div>
           )}
         </>
+      ) : item.codeGenerating ? (
+        <div className="manual-note">
+          <span className="spinner spinner-dark" /> Generating full code for {item.affectedPage || "this page"}…
+        </div>
       ) : (
         <>
           <div className="manual-note">

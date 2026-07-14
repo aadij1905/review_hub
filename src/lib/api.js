@@ -40,6 +40,41 @@ export async function fetchStatus(storeId) {
   return res.json();
 }
 
+// Ask the extractor app whether it's still installed on this shop. The
+// app/uninstalled webhook deletes the shop's row immediately, so /api/shop
+// 404s the moment a merchant uninstalls — even though the Analytics
+// Service's cached data (and thus fetchStatus's dataSource) survives. Returns
+// null (not false) on a network/service failure so a down tunnel isn't
+// mistaken for an uninstall.
+export async function checkInstalled(storeId) {
+  try {
+    const res = await fetch(`${SHOPIFY_APP_URL}/api/shop?shop=${encodeURIComponent(storeId)}`);
+    if (res.status === 404) return false;
+    if (!res.ok) return null;
+    return true;
+  } catch {
+    return null;
+  }
+}
+
+// syncStore() only waits for the crawl to be *triggered*, not finished
+// (the Analytics Service responds immediately and crawls asynchronously —
+// see ingest.js). Calling /report/generate before the crawl completes reads
+// the pre-crawl snapshot: no screenshotUrl/crawlerEnriched, so no images
+// ever reach the AI service's vision path. Poll crawlerStatus until it's
+// no longer "running" (or we give up) so generate always sees crawled data
+// when a crawl was triggered.
+export async function waitForCrawl(storeId, { timeoutMs = 180000, intervalMs = 2000 } = {}) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const status = await fetchStatus(storeId).catch(() => null);
+    const crawlerStatus = status?.crawlerStatus;
+    if (crawlerStatus !== "running") return crawlerStatus || null;
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+  }
+  return "timeout";
+}
+
 // The Generate Flow: ask the AI Service to pull analytics for this store and
 // produce suggestions. Returns { suggestions, meta, source }.
 // Falls back to the embedded demo dataset if the service is unreachable.

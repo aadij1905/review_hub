@@ -1,13 +1,27 @@
+import { useMemo, useState } from "react";
 import DevCard from "./DevCard";
 import { setDevProgress, updateItem } from "../lib/store";
 import { generateFullCode } from "../lib/api";
+import { DEV_STATUSES } from "../lib/ui";
+
+const DEV_FILTERS = [{ key: "all", label: "All" }, ...DEV_STATUSES];
 
 // Developer dashboard: only the suggestions the PO has approved, each with its
-// technical detail, code patch, and an implementation tracker.
+// technical detail, code patch, and an implementation tracker. Status counts
+// and a filter live at the top so a dev can see what's to do / in progress /
+// done — and who owns it — before scrolling through every card.
 export default function DevView({ storeId, reviewState, reload }) {
+  const [filter, setFilter] = useState("all");
   const accepted = (reviewState?.items || []).filter((i) => i.status === "accepted");
 
-  const done = accepted.filter((i) => i.devStatus === "done").length;
+  const counts = useMemo(() => ({
+    todo: accepted.filter((i) => (i.devStatus || "todo") === "todo").length,
+    in_progress: accepted.filter((i) => i.devStatus === "in_progress").length,
+    done: accepted.filter((i) => i.devStatus === "done").length,
+  }), [accepted]);
+
+  const done = counts.done;
+  const visible = accepted.filter((i) => filter === "all" || (i.devStatus || "todo") === filter);
 
   function handleProgress(item, patch) {
     setDevProgress(storeId, item.id, patch);
@@ -54,14 +68,51 @@ export default function DevView({ storeId, reviewState, reload }) {
           </p>
         </div>
       ) : (
-        accepted.map((item) => (
-          <DevCard
-            key={item.id}
-            item={item}
-            onProgress={handleProgress}
-            onGenerateCode={handleGenerateCode}
-          />
-        ))
+        <>
+          <div className="stats">
+            <div className="stat-card">
+              <div className="stat-label">TOTAL</div>
+              <div className="stat-value v-total">{accepted.length}</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-label">TO DO</div>
+              <div className="stat-value v-todo">{counts.todo}</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-label">IN PROGRESS</div>
+              <div className="stat-value v-in_progress">{counts.in_progress}</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-label">DONE</div>
+              <div className="stat-value v-done">{counts.done}</div>
+            </div>
+          </div>
+
+          <div className="tabs">
+            {DEV_FILTERS.map((f) => (
+              <button
+                key={f.key}
+                className={`tab ${filter === f.key ? "active" : ""}`}
+                onClick={() => setFilter(f.key)}
+              >
+                {f.label} ({f.key === "all" ? accepted.length : counts[f.key]})
+              </button>
+            ))}
+          </div>
+
+          {visible.length === 0 ? (
+            <div className="no-results">No suggestions in this status.</div>
+          ) : (
+            visible.map((item) => (
+              <DevCard
+                key={item.id}
+                item={item}
+                onProgress={handleProgress}
+                onGenerateCode={handleGenerateCode}
+              />
+            ))
+          )}
+        </>
       )}
     </div>
   );

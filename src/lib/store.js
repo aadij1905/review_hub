@@ -7,9 +7,10 @@
 //
 // Each item carries BOTH the PO review status and the developer implementation
 // progress:
-//   status    ∈ "pending" | "accepted" | "rejected"      (PO decision)
-//   devStatus ∈ "todo" | "in_progress" | "done"          (developer progress)
-//   devRemark  string                                    (developer note)
+//   status      ∈ "pending" | "accepted" | "rejected"      (PO decision)
+//   devStatus   ∈ "todo" | "in_progress" | "done"          (developer progress)
+//   devRemark   string                                     (developer note)
+//   devAssignee string                                     (developer working on it)
 
 const KEY = (storeId) => `reviewhub:store:${storeId}`;
 const HISTORY_KEY = (storeId) => `reviewhub:history:${storeId}`;
@@ -123,6 +124,7 @@ export function upsertSuggestions(storeId, suggestions, meta, source) {
       status: old?.status || "pending",
       devStatus: old?.devStatus || "todo",
       devRemark: old?.devRemark || "",
+      devAssignee: old?.devAssignee || "",
       devUpdatedAt: old?.devUpdatedAt || null,
     };
   });

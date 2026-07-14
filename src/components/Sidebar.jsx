@@ -41,12 +41,30 @@ export default function Sidebar({
       </div>
 
       <nav className="nav">
-        <button
-          className={`nav-link ${view === "dashboard" ? "active" : ""}`}
-          onClick={() => setView("dashboard")}
-        >
-          <span className="nav-icon">▦</span> Dashboard
-        </button>
+        {isAdmin ? (
+          <>
+            <button
+              className={`nav-link ${view === "analytics" ? "active" : ""}`}
+              onClick={() => setView("analytics")}
+            >
+              <span className="nav-icon">📊</span> Analytics
+            </button>
+
+            <button
+              className={`nav-link ${view === "suggestions" ? "active" : ""}`}
+              onClick={() => setView("suggestions")}
+            >
+              <span className="nav-icon">💡</span> Suggestions
+            </button>
+          </>
+        ) : (
+          <button
+            className={`nav-link ${view === "dashboard" ? "active" : ""}`}
+            onClick={() => setView("dashboard")}
+          >
+            <span className="nav-icon">▦</span> Dashboard
+          </button>
+        )}
 
         <button
           className={`nav-link ${view === "history" ? "active" : ""}`}

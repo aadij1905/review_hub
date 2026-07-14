@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import SuggestionCard from "./SuggestionCard";
 import Onboarding from "./Onboarding";
 import Analytics from "./Analytics";
 import { useToast } from "./Toast";
-import { generateSuggestions, syncStore, recordResponse, fetchStatus, generateFullCode } from "../lib/api";
+import { generateSuggestions, syncStore, waitForCrawl, recordResponse, fetchStatus, checkInstalled, generateFullCode } from "../lib/api";
 import {
   upsertSuggestions,
   setStatus,
@@ -23,10 +23,9 @@ const FILTERS = [
   { key: "rejected", label: "Rejected" },
 ];
 
-export default function AdminDashboard({ storeId, setStoreId, reviewState, reload }) {
+export default function AdminDashboard({ storeId, setStoreId, reviewState, reload, section }) {
   const push = useToast();
   const [busy, setBusy] = useState(false);
-  const [section, setSection] = useState("analytics");
   const [filter, setFilter] = useState("all");
   const [mode, setMode] = useState("comprehensive");
   const [websiteUrl, setWebsiteUrl] = useState(() => getStoreWebsite(storeId));
@@ -42,18 +41,53 @@ export default function AdminDashboard({ storeId, setStoreId, reviewState, reloa
     setStorePasswordState(getStorePassword(storeId));
   }, [storeId]);
 
+  // Gate on both "has this store ever synced real data" AND "is the
+  // extractor app still installed" — a merchant can uninstall the app after
+  // syncing, which leaves the Analytics Service's cache intact but should
+  // still send the PO back through onboarding to reinstall.
+  //
+  // `silent` skips the "Checking store status…" flash for background
+  // rechecks (e.g. tab regaining focus) — it only touches state if it
+  // actually finds the store no longer qualifies, so a healthy store stays
+  // put instead of blanking the dashboard on every alt-tab.
+  const checkStoreStatus = useCallback((id, { cancelledRef, silent = false }) => {
+    if (!silent) setHasRealData(null);
+    Promise.all([
+      fetchStatus(id).then((s) => s.dataSource === "shopify").catch(() => false),
+      checkInstalled(id),
+    ]).then(([synced, installed]) => {
+      if (cancelledRef.current) return;
+      const ok = synced && installed !== false;
+      if (!silent || !ok) setHasRealData(ok);
+    });
+  }, []);
+
   useEffect(() => {
     if (!storeId) {
       setHasRealData(false);
       return;
     }
-    let cancelled = false;
-    setHasRealData(null);
-    fetchStatus(storeId)
-      .then((s) => { if (!cancelled) setHasRealData(s.dataSource === "shopify"); })
-      .catch(() => { if (!cancelled) setHasRealData(false); });
-    return () => { cancelled = true; };
-  }, [storeId]);
+    const cancelledRef = { current: false };
+    checkStoreStatus(storeId, { cancelledRef });
+    return () => { cancelledRef.current = true; };
+  }, [storeId, checkStoreStatus]);
+
+  // Uninstalling the extractor app happens outside this tab (in the Shopify
+  // admin), so re-check install status whenever the PO comes back to it —
+  // otherwise a stale "installed" reading could linger for the whole session.
+  useEffect(() => {
+    if (!storeId) return;
+    const cancelledRef = { current: false };
+    function onVisible() {
+      if (document.visibilityState !== "visible") return;
+      checkStoreStatus(storeId, { cancelledRef, silent: true });
+    }
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      cancelledRef.current = true;
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [storeId, checkStoreStatus]);
 
   const items = reviewState?.items || [];
   const counts = useMemo(() => {
@@ -81,7 +115,16 @@ export default function AdminDashboard({ storeId, setStoreId, reviewState, reloa
         try {
           await syncStore(storeId, websiteUrl, storePassword);
           setHasRealData(true);
-          push("Store synced — data extracted", "success");
+          push("Store synced — crawling storefront for screenshots…", "info");
+          // syncStore() only confirms the crawl was triggered, not that it
+          // finished — generate would otherwise run against the pre-crawl
+          // snapshot and silently skip screenshots (see waitForCrawl in api.js).
+          const crawlResult = await waitForCrawl(storeId);
+          if (crawlResult === "failed") {
+            push("Crawler failed — generating from ShopifyQL data only", "info");
+          } else if (crawlResult === "timeout") {
+            push("Crawler still running after 3 min — generating from data available so far", "info");
+          }
         } catch {
           // shopify-pp may be offline / CORS-blocked; proceed with whatever
           // the analytics service already has (or demo data).
@@ -118,7 +161,8 @@ export default function AdminDashboard({ storeId, setStoreId, reviewState, reloa
     if (!confirm("Clear all suggestions and their approve/reject status for this store?")) return;
     clearStore(storeId);
     reload();
-    push("Review state cleared — generate a fresh set", "info");
+    setHasRealData(false);
+    push("Review state cleared — reconnect your store to generate a fresh set", "info");
   }
 
   function respond(item, status) {
@@ -299,21 +343,6 @@ export default function AdminDashboard({ storeId, setStoreId, reviewState, reloa
           </div>
         </div>
       )}
-
-      <div className="tabs section-tabs">
-        <button
-          className={`tab ${section === "analytics" ? "active" : ""}`}
-          onClick={() => setSection("analytics")}
-        >
-          Analytics
-        </button>
-        <button
-          className={`tab ${section === "suggestions" ? "active" : ""}`}
-          onClick={() => setSection("suggestions")}
-        >
-          Suggestions
-        </button>
-      </div>
 
       {section === "analytics" ? (
         <Analytics storeId={storeId} />

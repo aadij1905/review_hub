@@ -12,11 +12,14 @@ export default function DevCard({ item, onProgress, onGenerateCode }) {
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [remark, setRemark] = useState(item.devRemark || "");
+  const [assignee, setAssignee] = useState(item.devAssignee || "");
 
   useEffect(() => setRemark(item.devRemark || ""), [item.id, item.devRemark]);
+  useEffect(() => setAssignee(item.devAssignee || ""), [item.id, item.devAssignee]);
 
   const devStatus = item.devStatus || "todo";
   const remarkDirty = remark !== (item.devRemark || "");
+  const assigneeDirty = assignee !== (item.devAssignee || "");
 
   async function copy() {
     try {
@@ -37,6 +40,11 @@ export default function DevCard({ item, onProgress, onGenerateCode }) {
   function saveRemark() {
     onProgress(item, { devRemark: remark.trim() });
     push("Remark saved", "success");
+  }
+
+  function saveAssignee() {
+    onProgress(item, { devAssignee: assignee.trim() });
+    push(assignee.trim() ? `Assigned to ${assignee.trim()}` : "Unassigned", "success");
   }
 
   async function generateCode() {
@@ -69,6 +77,7 @@ export default function DevCard({ item, onProgress, onGenerateCode }) {
       <div className="card-top">
         <h3 className="card-title">{item.title}</h3>
         <div className="badges">
+          {item.devAssignee && <span className="badge badge-assignee">👤 {item.devAssignee}</span>}
           {item.category && <span className="badge badge-cat">{item.category}</span>}
           {item.effort && <span className="badge badge-effort">{item.effort} effort</span>}
         </div>
@@ -206,6 +215,17 @@ export default function DevCard({ item, onProgress, onGenerateCode }) {
           {item.devUpdatedAt && (
             <span className="dev-updated">updated {formatDate(item.devUpdatedAt)}</span>
           )}
+        </div>
+
+        <div className="remark-row">
+          <input
+            type="text"
+            className="assignee-input"
+            placeholder="Assign to a developer…"
+            value={assignee}
+            onChange={(e) => setAssignee(e.target.value)}
+            onBlur={() => assigneeDirty && saveAssignee()}
+          />
         </div>
 
         <div className="remark-row">

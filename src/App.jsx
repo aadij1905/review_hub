@@ -26,7 +26,7 @@ export default function App() {
     }
   });
 
-  const [view, setView] = useState("dashboard");
+  const [view, setView] = useState("analytics");
   const [stores, setStores] = useState(() => listStores());
   const [storeId, setStoreIdState] = useState(
     () => getActiveStore() || DEFAULT_STORE_ID
@@ -50,7 +50,7 @@ export default function App() {
 
   function switchStore(id) {
     setStoreId(id);
-    setView("dashboard");
+    setView(user?.role === "admin" ? "analytics" : "dashboard");
   }
 
   function handleAddStore() {
@@ -63,13 +63,13 @@ export default function App() {
     addStore(id);
     setStores(listStores());
     setStoreId(id);
-    setView("dashboard");
+    setView(user?.role === "admin" ? "analytics" : "dashboard");
   }
 
   function login(u) {
     setUser(u);
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(u));
-    setView("dashboard");
+    setView(u.role === "admin" ? "analytics" : "dashboard");
   }
 
   function logout() {
@@ -98,6 +98,7 @@ export default function App() {
           setStoreId={setStoreId}
           reviewState={reviewState}
           reload={reload}
+          section={view === "suggestions" ? "suggestions" : "analytics"}
         />
       );
     }

@@ -12,10 +12,6 @@ export function confidenceClass(confidence) {
   return `badge-conf-${key === "high" || key === "medium" || key === "low" ? key : "medium"}`;
 }
 
-export function fileIcon() {
-  return "📁";
-}
-
 export const DEV_STATUSES = [
   { key: "todo", label: "To do" },
   { key: "in_progress", label: "In progress" },

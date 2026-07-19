@@ -16,6 +16,8 @@ import {
   updateItem,
 } from "../lib/store";
 
+import { IconGear, IconSparkle, IconListChecks, IconClock, IconCheckCircle, IconXCircle } from "./Icons";
+
 const FILTERS = [
   { key: "all", label: "All" },
   { key: "pending", label: "Pending" },
@@ -253,7 +255,7 @@ export default function AdminDashboard({ storeId, setStoreId, reviewState, reloa
             className="btn-secondary"
             onClick={() => setShowStoreSettings((v) => !v)}
           >
-            ⚙ Store settings
+            <IconGear className="icon icon-sm" /> Store settings
           </button>
           {section === "suggestions" && (
             <>
@@ -288,7 +290,7 @@ export default function AdminDashboard({ storeId, setStoreId, reviewState, reloa
                     <span className="spinner" /> Generating…
                   </>
                 ) : (
-                  <>🤖 Generate Suggestions</>
+                  <><IconSparkle className="icon icon-sm" /> Generate Suggestions</>
                 )}
               </button>
             </>
@@ -356,7 +358,7 @@ export default function AdminDashboard({ storeId, setStoreId, reviewState, reloa
                 <span className="spinner" /> Generating…
               </>
             ) : (
-              <>🤖 Generate Suggestions</>
+              <><IconSparkle className="icon icon-sm" /> Generate Suggestions</>
             )}
           </button>
         </div>
@@ -364,19 +366,31 @@ export default function AdminDashboard({ storeId, setStoreId, reviewState, reloa
         <>
           <div className="stats">
             <div className="stat-card">
-              <div className="stat-label">TOTAL</div>
+              <div className="stat-head">
+                <span className="stat-chip chip-total"><IconListChecks className="icon" /></span>
+                <div className="stat-label">TOTAL</div>
+              </div>
               <div className="stat-value v-total">{counts.total}</div>
             </div>
             <div className="stat-card">
-              <div className="stat-label">PENDING</div>
+              <div className="stat-head">
+                <span className="stat-chip chip-pending"><IconClock className="icon" /></span>
+                <div className="stat-label">PENDING</div>
+              </div>
               <div className="stat-value v-pending">{counts.pending}</div>
             </div>
             <div className="stat-card">
-              <div className="stat-label">APPROVED</div>
+              <div className="stat-head">
+                <span className="stat-chip chip-approved"><IconCheckCircle className="icon" /></span>
+                <div className="stat-label">APPROVED</div>
+              </div>
               <div className="stat-value v-approved">{counts.accepted}</div>
             </div>
             <div className="stat-card">
-              <div className="stat-label">REJECTED</div>
+              <div className="stat-head">
+                <span className="stat-chip chip-rejected"><IconXCircle className="icon" /></span>
+                <div className="stat-label">REJECTED</div>
+              </div>
               <div className="stat-value v-rejected">{counts.rejected}</div>
             </div>
           </div>

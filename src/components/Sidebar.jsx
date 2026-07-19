@@ -1,3 +1,5 @@
+import { IconChart, IconBulb, IconGrid, IconClock, IconArrowRight } from "./Icons";
+
 export default function Sidebar({
   user,
   view,
@@ -18,8 +20,11 @@ export default function Sidebar({
   return (
     <aside className="sidebar">
       <div className="brand">
-        <div className="brand-name">Experience Intelligence</div>
-        <div className="brand-tag">AI-Powered Storefront Optimization</div>
+        <div className="brand-mark">◆</div>
+        <div className="brand-text">
+          <div className="brand-name">Experience Intelligence</div>
+          <div className="brand-tag">Storefront Optimization</div>
+        </div>
       </div>
 
       <div className="store-switch">
@@ -47,14 +52,14 @@ export default function Sidebar({
               className={`nav-link ${view === "analytics" ? "active" : ""}`}
               onClick={() => setView("analytics")}
             >
-              <span className="nav-icon">📊</span> Analytics
+              <span className="nav-icon"><IconChart className="icon" /></span> Analytics
             </button>
 
             <button
               className={`nav-link ${view === "suggestions" ? "active" : ""}`}
               onClick={() => setView("suggestions")}
             >
-              <span className="nav-icon">💡</span> Suggestions
+              <span className="nav-icon"><IconBulb className="icon" /></span> Suggestions
             </button>
           </>
         ) : (
@@ -62,7 +67,7 @@ export default function Sidebar({
             className={`nav-link ${view === "dashboard" ? "active" : ""}`}
             onClick={() => setView("dashboard")}
           >
-            <span className="nav-icon">▦</span> Dashboard
+            <span className="nav-icon"><IconGrid className="icon" /></span> Dashboard
           </button>
         )}
 
@@ -70,7 +75,7 @@ export default function Sidebar({
           className={`nav-link ${view === "history" ? "active" : ""}`}
           onClick={() => setView("history")}
         >
-          <span className="nav-icon">🕘</span> History
+          <span className="nav-icon"><IconClock className="icon" /></span> History
         </button>
 
       </nav>
@@ -80,7 +85,9 @@ export default function Sidebar({
         <span className={`role-badge ${isAdmin ? "role-admin" : "role-dev"}`}>
           {isAdmin ? "Admin / PO" : "Developer"}
         </span>
-        <button className="logout" onClick={onLogout}>Logout →</button>
+        <button className="logout" onClick={onLogout}>
+          Logout <IconArrowRight className="icon icon-sm" />
+        </button>
       </div>
     </aside>
   );

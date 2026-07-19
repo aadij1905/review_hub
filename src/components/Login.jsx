@@ -22,25 +22,33 @@ export default function Login({ onLogin }) {
 
   return (
     <div className="login-wrap">
+      <div className="login-orb login-orb-a" />
+      <div className="login-orb login-orb-b" />
+
       <form className="login-card" onSubmit={submit}>
+        <div className="login-mark">◆</div>
         <h1 className="login-title">Experience Intelligence</h1>
-        <p className="login-subtitle">Sign in to continue</p>
+        <p className="login-subtitle">AI-Powered Storefront Optimization</p>
 
         {error && <div className="login-error">{error}</div>}
 
         <div className="field">
+          <label className="field-label" htmlFor="login-username">Username</label>
           <input
+            id="login-username"
             type="text"
-            placeholder="Username"
+            placeholder="Enter your username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             autoFocus
           />
         </div>
         <div className="field">
+          <label className="field-label" htmlFor="login-password">Password</label>
           <input
+            id="login-password"
             type="password"
-            placeholder="Password"
+            placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -48,6 +56,8 @@ export default function Login({ onLogin }) {
 
         <button type="submit" className="btn btn-primary">Sign In</button>
       </form>
+
+      <p className="login-foot">© {new Date().getFullYear()} Experience Intelligence</p>
     </div>
   );
 }

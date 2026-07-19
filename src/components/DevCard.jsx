@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useToast } from "./Toast";
 import { DEV_STATUSES, devStatusLabel, formatDate } from "../lib/ui";
+import { IconUser, IconFolder, IconBolt, IconCheck, IconMessage } from "./Icons";
 
 // Developer-facing card: technical issue, recommendation, and the code patch.
 // Only rendered for suggestions the PO has accepted. Developers can mark
@@ -67,7 +68,7 @@ export default function DevCard({ item, onProgress, onGenerateCode }) {
           <span className="spinner spinner-dark" /> Generating…
         </>
       ) : (
-        <>⚡ {hasCode ? "Generate full code" : "Generate code"}</>
+        <><IconBolt className="icon icon-sm" /> {hasCode ? "Generate full code" : "Generate code"}</>
       )}
     </button>
   );
@@ -77,7 +78,9 @@ export default function DevCard({ item, onProgress, onGenerateCode }) {
       <div className="card-top">
         <h3 className="card-title">{item.title}</h3>
         <div className="badges">
-          {item.devAssignee && <span className="badge badge-assignee">👤 {item.devAssignee}</span>}
+          {item.devAssignee && (
+            <span className="badge badge-assignee"><IconUser className="icon icon-sm" /> {item.devAssignee}</span>
+          )}
           {item.category && <span className="badge badge-cat">{item.category}</span>}
           {item.effort && <span className="badge badge-effort">{item.effort} effort</span>}
         </div>
@@ -85,11 +88,12 @@ export default function DevCard({ item, onProgress, onGenerateCode }) {
 
       {item.affectedPage && (
         <div className="card-meta">
-          <span className="card-file">📁 {item.affectedPage}</span>
+          <span className="card-file"><IconFolder className="icon icon-sm" /> {item.affectedPage}</span>
         </div>
       )}
 
-      <div className="disclosure-panel" style={{ marginTop: 12 }}>
+      <div className="panel-eyebrow">Technical detail</div>
+      <div className="disclosure-panel">
         <div className="kv">
           <span className="k">Issue</span>
           {item.issue || item.problem}
@@ -114,7 +118,8 @@ export default function DevCard({ item, onProgress, onGenerateCode }) {
 
       {hasCode ? (
         <>
-          <div className="code-head">
+          <div className="panel-eyebrow">Code patch</div>
+          <div className="code-head" style={{ marginTop: 0 }}>
             <div>
               <span className="code-file">{patch.file || "patch"}</span>
               {patch.type && <span className="code-type">{patch.type}</span>}
@@ -123,7 +128,7 @@ export default function DevCard({ item, onProgress, onGenerateCode }) {
             <div className="code-head-actions">
               {genButton}
               <button className="copy-btn" onClick={copy}>
-                {copied ? "✓ Copied" : "Copy code"}
+                {copied ? <><IconCheck className="icon icon-sm" /> Copied</> : "Copy code"}
               </button>
             </div>
           </div>
@@ -150,32 +155,32 @@ export default function DevCard({ item, onProgress, onGenerateCode }) {
             </div>
           )}
           {(item.codeScreenshot?.url || item.codeScreenshot?.mobileUrl) && (
-            <div className="code-screenshot" style={{ marginTop: 12 }}>
-              <div className="k" style={{ marginBottom: 6 }}>
-                Live "before" — {item.affectedPage}
-              </div>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <div style={{ marginTop: 16 }}>
+              <div className="panel-eyebrow">Live "before" — {item.affectedPage}</div>
+              <div className="shot-grid">
                 {item.codeScreenshot.url && (
-                  <a href={item.codeScreenshot.url} target="_blank" rel="noreferrer">
+                  <a className="shot" href={item.codeScreenshot.url} target="_blank" rel="noreferrer">
+                    <span className="shot-label">Desktop</span>
                     <img
                       src={item.codeScreenshot.url}
                       alt={`${item.affectedPage} desktop screenshot`}
-                      style={{ maxWidth: 220, borderRadius: 6, border: "1px solid var(--border, #333)" }}
+                      style={{ maxWidth: 220 }}
                     />
                   </a>
                 )}
                 {item.codeScreenshot.mobileUrl && (
-                  <a href={item.codeScreenshot.mobileUrl} target="_blank" rel="noreferrer">
+                  <a className="shot" href={item.codeScreenshot.mobileUrl} target="_blank" rel="noreferrer">
+                    <span className="shot-label">Mobile</span>
                     <img
                       src={item.codeScreenshot.mobileUrl}
                       alt={`${item.affectedPage} mobile screenshot`}
-                      style={{ maxWidth: 110, borderRadius: 6, border: "1px solid var(--border, #333)" }}
+                      style={{ maxWidth: 110 }}
                     />
                   </a>
                 )}
               </div>
               {item.codeVisualChangeNote && (
-                <div className="code-notes" style={{ marginTop: 6 }}>
+                <div className="code-notes" style={{ marginTop: 8 }}>
                   <strong>What changes:</strong> {item.codeVisualChangeNote}
                 </div>
               )}
@@ -198,6 +203,7 @@ export default function DevCard({ item, onProgress, onGenerateCode }) {
       )}
 
       {/* Developer progress tracker */}
+      <div className="panel-eyebrow" style={{ marginBottom: 0 }}>Track implementation</div>
       <div className="dev-track">
         <div className="dev-track-row">
           <span className="dev-track-label">Implementation</span>
@@ -218,6 +224,7 @@ export default function DevCard({ item, onProgress, onGenerateCode }) {
         </div>
 
         <div className="remark-row">
+          <span className="row-icon"><IconUser className="icon icon-sm" /></span>
           <input
             type="text"
             className="assignee-input"
@@ -229,6 +236,7 @@ export default function DevCard({ item, onProgress, onGenerateCode }) {
         </div>
 
         <div className="remark-row">
+          <span className="row-icon"><IconMessage className="icon icon-sm" /></span>
           <textarea
             className="remark-input"
             placeholder="Add a remark for the PO (blockers, notes, links)…"

@@ -3,6 +3,7 @@ import DevCard from "./DevCard";
 import { setDevProgress, updateItem } from "../lib/store";
 import { generateFullCode } from "../lib/api";
 import { DEV_STATUSES } from "../lib/ui";
+import { IconListChecks, IconClock, IconLoader, IconCheckCircle } from "./Icons";
 
 const DEV_FILTERS = [{ key: "all", label: "All" }, ...DEV_STATUSES];
 
@@ -21,6 +22,7 @@ export default function DevView({ storeId, reviewState, reload }) {
   }), [accepted]);
 
   const done = counts.done;
+  const doneRatio = accepted.length ? Math.round((done / accepted.length) * 100) : 0;
   const visible = accepted.filter((i) => filter === "all" || (i.devStatus || "todo") === filter);
 
   function handleProgress(item, patch) {
@@ -56,6 +58,11 @@ export default function DevView({ storeId, reviewState, reload }) {
               <span className="source-tag">· {done}/{accepted.length} done</span>
             )}
           </p>
+          {accepted.length > 0 && (
+            <div className="progress-track">
+              <div className="progress-fill" style={{ width: `${doneRatio}%` }} />
+            </div>
+          )}
         </div>
       </div>
 
@@ -71,19 +78,31 @@ export default function DevView({ storeId, reviewState, reload }) {
         <>
           <div className="stats">
             <div className="stat-card">
-              <div className="stat-label">TOTAL</div>
+              <div className="stat-head">
+                <span className="stat-chip chip-total"><IconListChecks className="icon" /></span>
+                <div className="stat-label">TOTAL</div>
+              </div>
               <div className="stat-value v-total">{accepted.length}</div>
             </div>
             <div className="stat-card">
-              <div className="stat-label">TO DO</div>
+              <div className="stat-head">
+                <span className="stat-chip chip-todo"><IconClock className="icon" /></span>
+                <div className="stat-label">TO DO</div>
+              </div>
               <div className="stat-value v-todo">{counts.todo}</div>
             </div>
             <div className="stat-card">
-              <div className="stat-label">IN PROGRESS</div>
+              <div className="stat-head">
+                <span className="stat-chip chip-progress"><IconLoader className="icon" /></span>
+                <div className="stat-label">IN PROGRESS</div>
+              </div>
               <div className="stat-value v-in_progress">{counts.in_progress}</div>
             </div>
             <div className="stat-card">
-              <div className="stat-label">DONE</div>
+              <div className="stat-head">
+                <span className="stat-chip chip-done"><IconCheckCircle className="icon" /></span>
+                <div className="stat-label">DONE</div>
+              </div>
               <div className="stat-value v-done">{counts.done}</div>
             </div>
           </div>

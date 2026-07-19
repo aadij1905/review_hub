@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { loadHistory, countStatuses } from "../lib/store";
 import { devStatusLabel, formatDate } from "../lib/ui";
+import { IconCheck, IconX, IconChevron, IconBolt } from "./Icons";
 
 // Report run history for the active store. The current run is shown first,
 // followed by archived past runs. Each run is expandable to a read-only list of
@@ -52,13 +53,13 @@ export default function History({ storeId, reviewState }) {
                   </div>
                   <div className="history-counts">
                     <span>{c.total} suggestions</span>
-                    <span className="count-approved">✓ {c.accepted} approved</span>
-                    <span className="count-rejected">✕ {c.rejected} rejected</span>
+                    <span className="count-approved"><IconCheck className="icon icon-sm" /> {c.accepted} approved</span>
+                    <span className="count-rejected"><IconX className="icon icon-sm" /> {c.rejected} rejected</span>
                     {c.pending > 0 && <span className="count-pending">• {c.pending} pending</span>}
-                    <span className="count-done">🛠 {c.done} implemented</span>
+                    <span className="count-done"><IconBolt className="icon icon-sm" /> {c.done} implemented</span>
                   </div>
                 </div>
-                <span className={`chev ${isOpen ? "open" : ""}`}>›</span>
+                <span className={`chev ${isOpen ? "open" : ""}`}><IconChevron className="icon icon-sm" /></span>
               </div>
 
               {isOpen && (
@@ -66,7 +67,7 @@ export default function History({ storeId, reviewState }) {
                   {run.items.map((it) => (
                     <div className="history-item" key={it.id}>
                       <span className={`hi-status hi-${it.status}`}>
-                        {it.status === "accepted" ? "✓" : it.status === "rejected" ? "✕" : "•"}
+                        {it.status === "accepted" ? <IconCheck className="icon icon-sm" /> : it.status === "rejected" ? <IconX className="icon icon-sm" /> : "•"}
                       </span>
                       <div className="hi-main">
                         <div className="hi-title">{it.title}</div>

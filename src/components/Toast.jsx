@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useState } from "react";
+import { IconCheck, IconAlertTriangle, IconInfo } from "./Icons";
 
 const ToastContext = createContext(() => {});
 export const useToast = () => useContext(ToastContext);
@@ -20,7 +21,14 @@ export function ToastProvider({ children }) {
       <div className="toast-wrap">
         {toasts.map((t) => (
           <div key={t.id} className={`toast ${t.type}`}>
-            {t.type === "success" ? "✓" : t.type === "error" ? "⚠" : "ℹ"} {t.message}
+            {t.type === "success" ? (
+              <IconCheck className="icon icon-sm" />
+            ) : t.type === "error" ? (
+              <IconAlertTriangle className="icon icon-sm" />
+            ) : (
+              <IconInfo className="icon icon-sm" />
+            )}
+            {t.message}
           </div>
         ))}
       </div>

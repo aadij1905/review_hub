@@ -1,4 +1,5 @@
 import { installUrl } from "../lib/api";
+import { IconLoader } from "./Icons";
 
 // Shown to a PO before any suggestions exist for the connected store.
 // Walks them through installing the extractor app and syncing to the dashboard.
@@ -130,7 +131,7 @@ export default function Onboarding({
                     <span className="spinner" /> Syncing…
                   </>
                 ) : (
-                  <>🔄 Sync to Dashboard</>
+                  <><IconLoader className="icon icon-sm" /> Sync to Dashboard</>
                 )}
               </button>
             </div>

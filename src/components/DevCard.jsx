@@ -102,11 +102,22 @@ export default function DevCard({ item, onProgress, onGenerateCode }) {
           <span className="k">Recommendation</span>
           {item.recommendation || item.suggestion}
         </div>
-        {item.impactEstimate && (
+        {item.impactForecast ? (
           <div className="kv">
-            <span className="k">Impact</span>
-            {item.impactEstimate}
+            <span className="k">Estimated impact</span>
+            <span title={(item.impactForecast.assumptions || []).join(" · ")}>
+              {item.impactForecast.headline} · {item.impactForecast.deltaLabel}
+              {" — "}
+              <span style={{ color: "var(--muted)" }}>{item.impactForecast.basis}</span>
+            </span>
           </div>
+        ) : (
+          item.impactEstimate && (
+            <div className="kv">
+              <span className="k">Impact</span>
+              {item.impactEstimate}
+            </div>
+          )
         )}
         {item.dataSource && (
           <div className="kv">

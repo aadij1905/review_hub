@@ -12,7 +12,16 @@ import {
   Cell,
 } from "recharts";
 import { fetchAnalytics } from "../lib/api";
-import { flagLabel, flagDetail, flagSeverityClass } from "../lib/ui";
+import { flagLabel, flagDetail, flagSeverityClass, flagExplain } from "../lib/ui";
+import { IconChevron } from "./Icons";
+
+// Build the live storefront URL for a page path. The store id is the
+// myshopify domain, which always resolves (and redirects to a custom domain
+// if one is set), so it's a safe base for a click-through link.
+function pageUrl(storeId, path) {
+  if (!storeId || !path || !path.startsWith("/")) return null;
+  return `https://${storeId.replace(/\/+$/, "")}${path}`;
+}
 
 // Fixed-order categorical palette — color follows the entity (traffic
 // source / device), never its sessions ranking, so a filter or reload never
@@ -61,6 +70,14 @@ export default function Analytics({ storeId }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [openIssues, setOpenIssues] = useState(() => new Set());
+
+  const toggleIssue = (i) =>
+    setOpenIssues((prev) => {
+      const next = new Set(prev);
+      next.has(i) ? next.delete(i) : next.add(i);
+      return next;
+    });
 
   const load = useCallback(() => {
     if (!storeId) return;
@@ -292,7 +309,15 @@ export default function Analytics({ storeId }) {
                             <span className="page-thumb-empty">—</span>
                           )}
                         </td>
-                        <td className="pages-path">{p.path}</td>
+                        <td className="pages-path">
+                          {pageUrl(storeId, p.path) ? (
+                            <a className="page-link" href={pageUrl(storeId, p.path)} target="_blank" rel="noreferrer" title={`Open ${p.path} in a new tab`}>
+                              {p.path}
+                            </a>
+                          ) : (
+                            p.path
+                          )}
+                        </td>
                         <td>{num(p.sessions)}</td>
                         <td>{pct(p.conversionRate)}</td>
                         <td>{pct(p.bounceRate)}</td>
@@ -312,15 +337,46 @@ export default function Analytics({ storeId }) {
               <div className="no-results">No critical issues detected.</div>
             ) : (
               <div className="issue-list">
-                {data.flags.map((f, i) => (
-                  <div className={`issue-row ${flagSeverityClass(f)}`} key={i}>
-                    <span className={`issue-badge ${flagSeverityClass(f)}`}>{f.severity >= 3 ? "Critical" : "Warning"}</span>
-                    <div className="issue-body">
-                      <div className="issue-title">{flagLabel(f)}</div>
-                      <div className="issue-detail">{flagDetail(f)}</div>
+                {data.flags.map((f, i) => {
+                  const open = openIssues.has(i);
+                  const ex = flagExplain(f);
+                  const critical = f.severity >= 3;
+                  return (
+                    <div className={`issue-row ${flagSeverityClass(f)} ${open ? "is-open" : ""}`} key={i}>
+                      <button className="issue-head" onClick={() => toggleIssue(i)} aria-expanded={open}>
+                        <span className={`issue-badge ${flagSeverityClass(f)}`}>{critical ? "Critical" : "Warning"}</span>
+                        <div className="issue-body">
+                          <div className="issue-title">{flagLabel(f)}</div>
+                          <div className="issue-detail">{flagDetail(f)}</div>
+                        </div>
+                        <IconChevron className="issue-chevron" />
+                      </button>
+                      {open && (
+                        <div className="issue-explain">
+                          <div className="explain-block">
+                            <span className="explain-label">What it is</span>
+                            <p>{ex.what}</p>
+                          </div>
+                          <div className="explain-block">
+                            <span className="explain-label">Why it matters</span>
+                            <p>{ex.why}</p>
+                          </div>
+                          <div className="explain-block">
+                            <span className="explain-label">Why {critical ? "critical" : "a warning"}</span>
+                            <p>{ex.severity}</p>
+                          </div>
+                          {ex.notes.length > 0 && (
+                            <ul className="explain-notes">
+                              {ex.notes.map((n, k) => (
+                                <li key={k}>{n}</li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

@@ -6,6 +6,7 @@ import { IconFolder, IconChevron, IconCheck, IconX } from "./Icons";
 // impact and effort. Never renders code (that's the developer's view).
 export default function SuggestionCard({ item, onAccept, onReject, onReset, readOnly }) {
   const [open, setOpen] = useState(false);
+  const forecast = item.impactForecast;
 
   return (
     <div className="card">
@@ -38,11 +39,32 @@ export default function SuggestionCard({ item, onAccept, onReject, onReset, read
               <span className="k">Recommended action</span>
               {item.suggestion}
             </div>
-            {item.impactEstimate && (
+            {forecast ? (
               <div className="kv">
-                <span className="k">Expected impact</span>
-                {item.impactEstimate}
+                <span className="k">Estimated impact</span>
+                <div className="forecast-detail">
+                  <div className="forecast-detail-head">
+                    <span className="forecast-detail-value">{forecast.headline}</span>
+                    <span className="forecast-detail-delta">{forecast.deltaLabel}</span>
+                  </div>
+                  <div className="forecast-detail-basis">Based on {forecast.basis}</div>
+                  {forecast.assumptions?.length > 0 && (
+                    <ul className="forecast-assumptions">
+                      {forecast.assumptions.map((a, i) => (
+                        <li key={i}>{a}</li>
+                      ))}
+                    </ul>
+                  )}
+                  <div className="forecast-note">Conservative model — a directional estimate, not a guarantee.</div>
+                </div>
               </div>
+            ) : (
+              item.impactEstimate && (
+                <div className="kv">
+                  <span className="k">Expected impact</span>
+                  {item.impactEstimate}
+                </div>
+              )
             )}
             {item.effort && (
               <div className="kv">

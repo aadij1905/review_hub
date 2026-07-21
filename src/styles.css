@@ -43,6 +43,7 @@ input { font-family: inherit; }
   position: relative;
   min-height: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 24px;
@@ -460,6 +461,25 @@ input { font-family: inherit; }
 .card-top { display: flex; justify-content: space-between; gap: 16px; }
 .card-title { font-size: 16.5px; font-weight: 700; color: var(--navy); margin: 0; }
 .card-problem { color: var(--muted); font-size: 13.5px; line-height: 1.55; margin: 10px 0 14px; }
+
+/* ── Estimated-impact forecast (shown inside the details disclosure only) ────
+   A data-grounded revenue estimate — measured store inputs × a conservative
+   assumed recovery band. Rendered under "Estimated impact", not on the card
+   face, so it reads as a modeled estimate rather than a headline promise. */
+.forecast-detail { margin-top: 2px; }
+.forecast-detail-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.forecast-detail-value { font-weight: 800; font-size: 16px; color: var(--green); letter-spacing: -0.01em; }
+.forecast-detail-delta { font-size: 13px; font-weight: 600; color: var(--navy); }
+.forecast-detail-basis { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+.forecast-assumptions {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.forecast-assumptions li { margin-bottom: 2px; }
+.forecast-note { font-size: 11.5px; color: var(--muted-2); font-style: italic; margin-top: 8px; }
 .badges { display: flex; gap: 7px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
 .badge {
   font-size: 10.5px;
@@ -853,15 +873,26 @@ pre.code {
 .cwv-poor { background: #fdeef0; color: var(--red); }
 
 .issue-list { display: flex; flex-direction: column; gap: 10px; }
-.issue-row { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border); }
+.issue-row { border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
 .issue-row.issue-critical { background: #fdf3f4; border-color: #f6c9cf; }
 .issue-row.issue-warning { background: #fffaf0; border-color: #f6e2bd; }
+.issue-head { display: flex; gap: 12px; align-items: flex-start; width: 100%; padding: 12px 14px; background: none; border: none; text-align: left; font: inherit; color: inherit; cursor: pointer; }
 .issue-badge { flex-shrink: 0; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; padding: 3px 9px; border-radius: 20px; margin-top: 1px; }
 .issue-badge.issue-critical { background: var(--red); color: #fff; }
 .issue-badge.issue-warning { background: var(--amber); color: #fff; }
 .issue-body { flex: 1; }
 .issue-title { font-weight: 700; font-size: 13.5px; color: var(--navy); }
 .issue-detail { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.issue-chevron { flex-shrink: 0; width: 16px; height: 16px; margin-top: 3px; color: var(--muted-2); transition: transform .15s ease; }
+.issue-row.is-open .issue-chevron { transform: rotate(90deg); }
+.issue-explain { padding: 2px 14px 14px 14px; display: grid; gap: 10px; }
+.issue-explain .explain-block .explain-label { display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--muted-2); margin-bottom: 3px; }
+.issue-explain .explain-block p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--navy); }
+.issue-explain .explain-notes { margin: 2px 0 0; padding-left: 16px; display: flex; flex-direction: column; gap: 4px; }
+.issue-explain .explain-notes li { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+.page-link { color: var(--brand, #3b5bdb); text-decoration: none; }
+.page-link:hover { text-decoration: underline; }
 
 /* ── History ───────────────────────────────────────────────────────────── */
 .history-card { padding: 0; overflow: hidden; }

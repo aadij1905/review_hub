@@ -4,11 +4,11 @@
 // different hosts/ports (defaults match the repo's .env files).
 // ─────────────────────────────────────────────────────────────────────────────
 export const AI_URL =
-  "https://remarkable-associated-sonic-francis.trycloudflare.com"; // cloudflare tunnel -> local ai-service (rate-limited on Railway)
+  "https://henry-powell-midi-lil.trycloudflare.com"; // cloudflare tunnel -> local ai-service (rate-limited on Railway)
 // "http://localhost:5001";
 // "https://ai-service-production-b7c5.up.railway.app"; // ai service 2
 export const ANALYTICS_URL =
-  "https://viewed-fought-holmes-refused.trycloudflare.com"; // cloudflare tunnel -> local analytics-service
+  "https://shoulder-uncle-roles-text.trycloudflare.com"; // cloudflare tunnel -> local analytics-service
 // "http://localhost:4000";
 // "https://analytics-service-production-6d80.up.railway.app"; // analytic service
 export const SHOPIFY_APP_URL =

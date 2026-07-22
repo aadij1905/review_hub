@@ -14,6 +14,7 @@ export default function SuggestionCard({ item, onAccept, onReject, onReset, read
         <h3 className="card-title">{item.title}</h3>
         <div className="badges">
           {item.category && <span className="badge badge-cat">{item.category}</span>}
+          {item.confidence && <span className={`badge badge-conf-${item.confidence}`}>{item.confidence} confidence</span>}
           {item.effort && <span className="badge badge-effort">{item.effort} effort</span>}
         </div>
       </div>

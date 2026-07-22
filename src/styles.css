@@ -489,7 +489,7 @@ input { font-family: inherit; }
   border-radius: 20px;
   text-transform: uppercase;
 }
-.badge-conf-high { background: #fdeaec; color: var(--red); }
+.badge-conf-high { background: #e9f7ef; color: var(--green); }
 .badge-conf-medium { background: #fff4e2; color: var(--amber); }
 .badge-conf-low { background: #eef1f8; color: var(--muted); }
 .badge-cat { background: #eef1fd; color: var(--accent); }

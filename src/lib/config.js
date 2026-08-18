@@ -4,16 +4,16 @@
 // different hosts/ports (defaults match the repo's .env files).
 // ─────────────────────────────────────────────────────────────────────────────
 export const AI_URL =
-  "https://henry-powell-midi-lil.trycloudflare.com"; // cloudflare tunnel -> local ai-service (rate-limited on Railway)
+  "https://prizes-chambers-logging-administrative.trycloudflare.com"; // cloudflare tunnel -> local ai-service (rate-limited on Railway)
 // "http://localhost:5001";
 // "https://ai-service-production-b7c5.up.railway.app"; // ai service 2
 export const ANALYTICS_URL =
-  "https://shoulder-uncle-roles-text.trycloudflare.com"; // cloudflare tunnel -> local analytics-service
+  "https://parks-mac-patterns-networks.trycloudflare.com"; // cloudflare tunnel -> local analytics-service
 // "http://localhost:4000";
 // "https://analytics-service-production-6d80.up.railway.app"; // analytic service
 export const SHOPIFY_APP_URL =
-  "https://shopify-extractor-production.up.railway.app"; // deployed extractor (install + sync)
-// "http://localhost:3000";
+  "https://shopify-extractor-production-f613.up.railway.app"; // deployed extractor (store installed here)
+// "http://localhost:3000"; // local extractor
 
 // Default store used for the demo. A PO can change this on the onboarding card.
 export const DEFAULT_STORE_ID = "my-store-mkct5tzv.myshopify.com";
@@ -26,4 +26,3 @@ export const USERS = [
 ];
 
 // Map the AI service's string confidence to a percentage for the progress bar.
-export const CONFIDENCE_PCT = { high: 92, medium: 68, low: 45 };

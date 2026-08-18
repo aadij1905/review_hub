@@ -1,4 +1,4 @@
-import { installUrl } from "../lib/api";
+import { SHOPIFY_APP_URL } from "../lib/config";
 import { IconLoader } from "./Icons";
 
 // Shown to a PO before any suggestions exist for the connected store.
@@ -51,7 +51,7 @@ export default function Onboarding({
             <div className="store-input">
               <a
                 className="btn-secondary"
-                href={installUrl(storeId)}
+                href={`${SHOPIFY_APP_URL}/auth?shop=${encodeURIComponent(storeId)}`}
                 target="_blank"
                 rel="noreferrer"
                 style={{ textDecoration: "none", display: "inline-block" }}

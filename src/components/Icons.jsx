@@ -179,15 +179,6 @@ export function IconInfo({ className }) {
     </svg>
   );
 }
-export function IconTrendUp({ className }) {
-  return (
-    <svg {...base} className={className}>
-      <path d="M3 17l6-6 4 4 8-8" />
-      <path d="M17 7h4v4" />
-    </svg>
-  );
-}
-
 export function IconArrowRight({ className }) {
   return (
     <svg {...base} className={className}>

@@ -1,17 +1,3 @@
-import { CONFIDENCE_PCT } from "./config";
-
-export function confidencePct(confidence) {
-  if (typeof confidence === "number") {
-    return confidence <= 1 ? Math.round(confidence * 100) : Math.round(confidence);
-  }
-  return CONFIDENCE_PCT[confidence] ?? 60;
-}
-
-export function confidenceClass(confidence) {
-  const key = typeof confidence === "string" ? confidence : "medium";
-  return `badge-conf-${key === "high" || key === "medium" || key === "low" ? key : "medium"}`;
-}
-
 export const DEV_STATUSES = [
   { key: "todo", label: "To do" },
   { key: "in_progress", label: "In progress" },

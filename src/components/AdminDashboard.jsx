@@ -14,6 +14,7 @@ import {
   getStorePassword,
   setStorePassword,
   updateItem,
+  countStatuses,
 } from "../lib/store";
 
 import { IconGear, IconSparkle, IconListChecks, IconClock, IconCheckCircle, IconXCircle } from "./Icons";
@@ -92,14 +93,7 @@ export default function AdminDashboard({ storeId, setStoreId, reviewState, reloa
   }, [storeId, checkStoreStatus]);
 
   const items = reviewState?.items || [];
-  const counts = useMemo(() => {
-    return {
-      total: items.length,
-      pending: items.filter((i) => i.status === "pending").length,
-      accepted: items.filter((i) => i.status === "accepted").length,
-      rejected: items.filter((i) => i.status === "rejected").length,
-    };
-  }, [items]);
+  const counts = useMemo(() => countStatuses(items), [items]);
 
   const visible = items.filter((i) => filter === "all" || i.status === filter);
 

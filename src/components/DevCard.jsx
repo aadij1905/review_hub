@@ -102,22 +102,11 @@ export default function DevCard({ item, onProgress, onGenerateCode }) {
           <span className="k">Recommendation</span>
           {item.recommendation || item.suggestion}
         </div>
-        {item.impactForecast ? (
+        {item.impactEstimate && (
           <div className="kv">
-            <span className="k">Estimated impact</span>
-            <span title={(item.impactForecast.assumptions || []).join(" · ")}>
-              {item.impactForecast.headline} · {item.impactForecast.deltaLabel}
-              {" — "}
-              <span style={{ color: "var(--muted)" }}>{item.impactForecast.basis}</span>
-            </span>
+            <span className="k">Impact</span>
+            {item.impactEstimate}
           </div>
-        ) : (
-          item.impactEstimate && (
-            <div className="kv">
-              <span className="k">Impact</span>
-              {item.impactEstimate}
-            </div>
-          )
         )}
         {item.dataSource && (
           <div className="kv">
@@ -209,7 +198,7 @@ export default function DevCard({ item, onProgress, onGenerateCode }) {
             {patch.instructions ||
               "No code patch applies; this requires a manual review/change."}
           </div>
-          {genButton && <div className="manual-gen">{genButton}</div>}
+          <div className="manual-gen">{genButton}</div>
         </>
       )}
 

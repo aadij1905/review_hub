@@ -9,11 +9,6 @@ export function mergeSuggestions(report, analysis) {
   return problems.map((p) => ({ ...p, ...(byId[p.id] || {}) }));
 }
 
-// Build the store-facing install URL for the extractor app.
-export function installUrl(storeId) {
-  return `${SHOPIFY_APP_URL}/auth?shop=${encodeURIComponent(storeId)}`;
-}
-
 // Best-effort: ask the shopify-pp service to extract + ingest fresh data.
 // This may fail (service not running, or CORS — shopify-pp has no CORS
 // middleware); callers should treat failure as non-fatal and proceed.
